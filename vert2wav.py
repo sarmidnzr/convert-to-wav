@@ -46,7 +46,7 @@ def conToWav(path_to_folder): # Converts unprocessed audio files in path folder 
     with open('ind.txt',mode='w') as f:
         f.write(str(FILE_INDEX)) #Writes index to ind.txt
 
-def splitInto(path_to_folder, train_prob, val_prob, test_prob): #places audio wav files into train, val, or test
+def splitInto(path_to_folder, train_prob, val_prob, test_prob, path_to_train, path_to_val, path_to_test): #places audio wav files into train, val, or test
     #path to digits folder in wav
     #FILE_INDEX = 0 
     #with open('ind.txt',mode='r') as f:
@@ -69,16 +69,12 @@ def splitInto(path_to_folder, train_prob, val_prob, test_prob): #places audio wa
         for x,y in enumerate(listofFiles[i]):     #places audio wav files into train, val, or test
             try:
                 prob = random.uniform(0.0,1.0)
-                print(prob)
-                print(x)
-                print(y)
-                print(i)
                 if prob < trainprob:
-                    shutil.copy(str(y[1]),"C:\\Users\\sarmi\\daudiorec\\wav_audio_files\\train\\"+num[i]+'\\'+y[0])
+                    shutil.copy(str(y[1]), path_to_train + "\\"+num[i]+'\\'+y[0])
                 elif trainprob <= prob < trainprob+valprob:
-                    shutil.copy(str(y[1]),"C:\\Users\\sarmi\\daudiorec\\wav_audio_files\\val\\"+num[i]+'\\'+y[0])
+                    shutil.copy(str(y[1]), path_to_val + "\\"+num[i]+'\\'+y[0])
                 else:
-                    shutil.copy(str(y[1]),"C:\\Users\\sarmi\\daudiorec\\wav_audio_files\\test\\"+num[i]+'\\'+y[0])
+                    shutil.copy(str(y[1]), path_to_test + "\\"+num[i]+'\\'+y[0])
 
             except Exception as e:
                 print(e)
@@ -89,6 +85,5 @@ def splitInto(path_to_folder, train_prob, val_prob, test_prob): #places audio wa
         
 
 if __name__ == '__main__':
-    splitInto(r"C:\Users\sarmi\daudiorec\wav_audio_files\digits", 0,0,0)
-    # conToWav(r'C:\Users\sarmi\daudiorec\all_audio_files')
+   pass
 
