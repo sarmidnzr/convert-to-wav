@@ -17,13 +17,13 @@ def load_net():
 net = load_net()
 
 def predict_raw(raw: np.ndarray) -> str:
-    feats = n.extract_normalized_features(live_audio=raw)
-    digit = net.inference(feats)[1]
+    feats = n.app_extract_normalized_features(live_audio=raw)
+    digit = net.app_inference(feats)[1]
     return LABELS[digit]
 
 def predict_file(path: str) -> str:
-    feats = n.extract_normalized_features(file_path=path)
-    digit = net.inference(feats)[1]
+    feats = n.app_extract_normalized_features(file_path=path)
+    digit = net.app_inference(feats)[1]
     return LABELS[digit]
 
 tab_upload, tab_mic = st.tabs(["📁 Upload File", "🎙️ Microphone"])

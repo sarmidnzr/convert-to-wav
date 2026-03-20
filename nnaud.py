@@ -128,8 +128,6 @@ class Neural_Net(): # 5 layer Neural Network  I'm initializing to this 60->128->
         self.l1_2_weights -=  learning_rate*(grad_weights_2+0.0001*self.l1_2_weights)
         self.l0_1_weights -=  learning_rate*(grad_weights_1+0.0001*self.l0_1_weights)
 
-       
-
     def activation_derivative(value):
         
         return (value>0).astype(cp.float32)
@@ -209,6 +207,55 @@ class Neural_Net(): # 5 layer Neural Network  I'm initializing to this 60->128->
         self.bias[1] = data["b2"]
         self.bias[2] = data["b3"]
         self.bias[3] = data["b4"]
+
+    def app_extract_normalized_features(file_path=None, live_audio=None):
+
+        stats = np.load(r"C:\Users\sarmi\daudiorec\stats.npz")
+        mean, stdev = stats["mean"], stats["stdev"]
+        if file_path is not None: #for app
+            x = extract_features(file_path).astype(np.float32)     
+            x = (x - mean) / stdev             
+            
+            return x
+        else: #for live audio
+            x = extract_features(raw=live_audio).astype(np.float32)     
+            x = (x - mean) / stdev             
+            
+            return x
+
+    def app_inference(self, initial_features): #arr should be [weight0_arr, weight1_arr, weight2_arr, weight3_arr]
+            
+            def softmax(final_layer):
+
+                fin_max = np.max(final_layer, axis=0, keepdims=True)
+                e_powered = np.exp(final_layer-fin_max)
+                e_sum = np.sum(e_powered,axis=0,keepdims=True)
+                
+                return e_powered/e_sum
+            
+        
+            self.layer0_inp = initial_features
+
+            l0_1result = np.matmul(self.l0_1_weights, initial_features) + self.bias[0] #output is 128 dimensional
+            l0_1ReLU = np.maximum(0, l0_1result) #ReLU on layer 0
+            
+            self.layer1_inp = l0_1ReLU
+            l1_2result = np.matmul(self.l1_2_weights, l0_1ReLU) + self.bias[1] #output is 64 dimensional
+            l1_2ReLU = np.maximum(0, l1_2result) #ReLU on layer 1
+            
+            self.layer2_inp = l1_2ReLU
+            l2_3result = np.matmul(self.l2_3_weights, l1_2ReLU) + self.bias[2]  #output is 32 dimensional
+            l2_3ReLU = np.maximum(0, l2_3result) #ReLU on layer 2
+            
+            self.layer3_inp = l2_3ReLU
+            l3_4result = np.matmul(self.l3_4_weights, l2_3ReLU) + self.bias[3] #output is 10 dimensional
+
+            soft = softmax(l3_4result)
+
+            if soft.shape[1] == 1:
+                return (soft, self.label_guessed(softmax_in=soft))
+
+            return (soft, 0) #10 dimensional vector 0-9
 
 
 def collect_and_save_features(filepath=r'/common/home/sn887/audio-digit-nn/wav_audio_files/train'): #speeds up time of training by just storing the features instead of computing them every single epoch
